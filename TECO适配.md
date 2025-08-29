@@ -43,23 +43,26 @@ einops 提供了一种简洁、直观且无错误的方式来进行张量操作�
     ```
     rearrange(x, 'b c (h p1) (w p2) -> b c h w p1 p2', p1=8, p2=8)
     ```
-#### 2.3.1 合并维度	
+#### 2.3.4 合并维度	
 - 	将多个维度合并成一个，输出维度(2, 3072)
     ```
     rearrange(x, 'b c h w -> b (c h w)')
     ```
-#### 2.3.1 空间展平
+#### 2.3.5 空间展平
 - 将 H×W 空间展平为序列（如 ViT），输出维度(2, 1024, 3)
     ```
     rearrange(x, 'b c h w -> b (h w) c')
     ```
-#### 2.3.1 图像切块
+#### 2.3.6 图像切块
 - 常用于 Vision Transformer，输出维度(2, 4, 768)
     ```
     rearrange(x, 'b c (h p1) (w p2) -> b (h w) (c p1 p2)', p1=16, p2=16)
     ```
-#### 2.3.1 添加新维度
+#### 2.3.7 添加新维度
 - 相当于 unsqueeze，输出维度(2, 3, 32, 32, 1)
     ```
     rearrange(x, 'b c h w -> b c h w 1')
     ```
+## 3. teco适配情况
+- 将输入张量移动到GPU后，使用unsqueeze占用显存，因此unsqueeze能在teco加速卡正常运行
+- 使用2.2节介绍的测试脚本显示报错：FAILED test_other.py::test_torch_compile_for_layers - torch._dynamo.exc.InternalTorchDynamoError: 'torch_sdaa._C._SDAADeviceProperties' object has no attribute 'major'，即einops.rearrange不能被torch.compile编译，但rearrange功能正常可正常使用。
